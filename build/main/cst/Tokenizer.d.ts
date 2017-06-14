@@ -45,6 +45,10 @@ export declare class Tokenizer {
     private needcont;
     private contline;
     private readonly indents;
+    /**
+     * Matches any character zero or more times.
+     * May change...
+     */
     private endprog;
     private readonly strstart;
     /**

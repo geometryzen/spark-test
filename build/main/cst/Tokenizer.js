@@ -154,6 +154,11 @@ var Tokenizer = (function () {
          */
         this.lnum = 0;
         this.parenlev = 0;
+        /**
+         * Matches any character zero or more times.
+         * May change...
+         */
+        this.endprog = /.*/;
         this.strstart = [-1, -1];
         this.callback = callback;
         this.continued = false;
@@ -161,7 +166,6 @@ var Tokenizer = (function () {
         this.needcont = false;
         this.contline = undefined;
         this.indents = [0];
-        this.endprog = /.*/;
         this.interactive = interactive;
         this.doneFunc = function doneOrFailed() {
             var begin = this.begin;

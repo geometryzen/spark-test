@@ -11,11 +11,13 @@ var OpMap = {};
 /**
  * An Arc is a pair, represented in an array, consisting a label and a to-state.
  */
-
-
+var ARC_SYMBOL_LABEL = 0;
+var ARC_TO_STATE = 1;
 /**
  *
  */
+var IDX_DFABT_DFA = 0;
+var IDX_DFABT_BEGIN_TOKENS = 1;
 
 
 /**
@@ -24,11 +26,11 @@ var OpMap = {};
 var ParseTables = {
     sym: { Start: 256 },
     number2symbol: { 256: 'Start' },
-    dfas: { 256: [[[[1, 1]], [[2, 2]], [[0, 2]]], { 1: 1 }] },
-    states: [[[[1, 1]], [[2, 2]], [[0, 2]]]],
-    labels: [[0, 'EMPTY'], [2, null], [0, null]],
+    dfas: { 256: [[[[1, 1], [2, 1]], [[3, 1], [4, 2]], [[0, 2]]], { 1: 1, 2: 1 }] },
+    states: [[[[1, 1], [2, 1]], [[3, 1], [4, 2]], [[0, 2]]]],
+    labels: [[0, 'EMPTY'], [3, null], [2, null], [4, null], [0, null]],
     keywords: {},
-    tokens: { 0: 2, 2: 1 },
+    tokens: { 0: 4, 2: 2, 3: 1, 4: 3 },
     start: 256
 };
 // Nothing more to see here.
@@ -41,20 +43,6 @@ function assert(condition, message) {
         throw new Error(message);
     }
 }
-
-/**
- * Returns the number of children in the specified node.
- */
-
-
-
-
-function IDXLAST(xs) {
-    return xs.length - 1;
-}
-/**
- * Returns the terminal nodes of the tree.
- */
 
 /**
  * Null function used for default values of callbacks, etc.
@@ -346,6 +334,11 @@ var Tokenizer = (function () {
          */
         this.lnum = 0;
         this.parenlev = 0;
+        /**
+         * Matches any character zero or more times.
+         * May change...
+         */
+        this.endprog = /.*/;
         this.strstart = [-1, -1];
         this.callback = callback;
         this.continued = false;
@@ -353,7 +346,6 @@ var Tokenizer = (function () {
         this.needcont = false;
         this.contline = undefined;
         this.indents = [0];
-        this.endprog = /.*/;
         this.interactive = interactive;
         this.doneFunc = function doneOrFailed() {
             var begin = this.begin;
@@ -654,13 +646,24 @@ function indentationError(message, begin, end, text) {
     return e;
 }
 
-// import { Tokens } from './Tokens';
 /**
  * Decodes of the tokens.
  * A mapping from the token number (symbol) to its human-readable name.
  */
 var tokenNames = {};
-// tokenNames[Tokens.T_AMPER] = 'T_AMPER';
+tokenNames[Tokens.T_COMMENT] = 'COMMENT';
+tokenNames[Tokens.T_DEDENT] = 'DEDENT';
+tokenNames[Tokens.T_ENDMARKER] = 'ENDMARKER';
+tokenNames[Tokens.T_ERRORTOKEN] = 'ERRORTOKEN';
+tokenNames[Tokens.T_INDENT] = 'INDENT';
+tokenNames[Tokens.T_N_TOKENS] = 'N_TOKENS';
+tokenNames[Tokens.T_NAME] = 'NAME';
+tokenNames[Tokens.T_NEWLINE] = 'NEWLINE';
+tokenNames[Tokens.T_NL] = 'NL';
+tokenNames[Tokens.T_NT_OFFSET] = 'NT_OFFSET';
+tokenNames[Tokens.T_NUMBER] = 'NUMBER';
+tokenNames[Tokens.T_OP] = 'OP';
+tokenNames[Tokens.T_STRING] = 'STRING';
 
 function grammarName(type) {
     var tokenName = tokenNames[type];
@@ -761,6 +764,40 @@ var Range = (function () {
     return Range;
 }());
 
+/**
+ * Returns the number of children in the specified node.
+ */
+
+
+
+
+function IDXLAST(xs) {
+    return xs.length - 1;
+}
+/**
+ * Returns the terminal nodes of the tree.
+ */
+
+/**
+ * Prepare the source text into lines to feed to the generateTokens method of the tokenizer.
+ */
+function splitSourceTextIntoLines(sourceText) {
+    var lines = [];
+    // Why do we normalize the sourceText in this manner?
+    if (sourceText.substr(IDXLAST(sourceText), 1) !== "\n") {
+        sourceText += "\n";
+    }
+    // Splitting this way will create a final line that is the zero-length string.
+    var pieces = sourceText.split("\n");
+    var N = pieces.length;
+    for (var i = 0; i < N; ++i) {
+        // We're adding back newline characters for all but the last line.
+        var line = pieces[i] + ((i === IDXLAST(pieces)) ? "" : "\n");
+        lines.push(line);
+    }
+    return lines;
+}
+
 // Dereference certain tokens for performance.
 var T_COMMENT = Tokens.T_COMMENT;
 var T_ENDMARKER = Tokens.T_ENDMARKER;
@@ -768,20 +805,6 @@ var T_NAME = Tokens.T_NAME;
 var T_NL = Tokens.T_NL;
 var T_NT_OFFSET = Tokens.T_NT_OFFSET;
 var T_OP = Tokens.T_OP;
-/**
- * Forget about the array wrapper!
- * An Arc is a two-part object consisting a ... and a to-state.
- */
-var ARC_SYMBOL_LABEL = 0;
-var ARC_TO_STATE = 1;
-/**
- * Forget about the array wrapper!
- * A Dfa is a two-part object consisting of:
- * 1. A list of arcs for each state
- * 2. A mapping?
- * Interestingly, the second part does not seem to be used here.
- */
-var DFA_STATES = 0;
 // low level parser to a concrete syntax tree, derived from cpython's lib2to3
 // TODO: The parser does not report whitespace nodes.
 // It would be nice if there were an ignoreWhitespace option.
@@ -803,8 +826,9 @@ var Parser = (function () {
             children: []
         };
         var stackentry = {
-            dfa: this.grammar.dfas[start],
-            state: 0,
+            dfa: this.grammar.dfas[start][IDX_DFABT_DFA],
+            beginTokens: this.grammar.dfas[start][IDX_DFABT_BEGIN_TOKENS],
+            stateId: 0,
             node: newnode
         };
         this.stack.push(stackentry);
@@ -830,11 +854,11 @@ var Parser = (function () {
         var labels = g.labels;
         // This code is very performance sensitive.
         OUTERWHILE: while (true) {
-            var top_1 = stack[stack.length - 1];
-            var states = top_1.dfa[DFA_STATES];
+            var stackTop = stack[stack.length - 1];
+            var dfa = stackTop.dfa;
             // This is not being used. Why?
             // let first = tp.dfa[DFA_SECOND];
-            var arcs = states[top_1.state];
+            var arcs = dfa[stackTop.stateId];
             // look for a to-state with this label
             for (var _i = 0, arcs_1 = arcs; _i < arcs_1.length; _i++) {
                 var arc = arcs_1[_i];
@@ -846,12 +870,12 @@ var Parser = (function () {
                 if (tokenSymbol === arcSymbol) {
                     this.shiftToken(type, value, newState, begin, end, line);
                     // pop while we are in an accept-only state
-                    var state = newState;
+                    var stateId = newState;
                     /**
                      * Temporary variable to save a few CPU cycles.
                      */
-                    var statesOfState = states[state];
-                    while (statesOfState.length === 1 && statesOfState[0][ARC_SYMBOL_LABEL] === 0 && statesOfState[0][ARC_TO_STATE] === state) {
+                    var statesOfState = dfa[stateId];
+                    while (statesOfState.length === 1 && statesOfState[0][ARC_SYMBOL_LABEL] === 0 && statesOfState[0][ARC_TO_STATE] === stateId) {
                         this.popNonTerminal();
                         // Much of the time we won't be done so cache the stack length.
                         var stackLength = stack.length;
@@ -860,27 +884,29 @@ var Parser = (function () {
                             return true;
                         }
                         else {
-                            top_1 = stack[stackLength - 1];
-                            state = top_1.state;
-                            states = top_1.dfa[DFA_STATES];
+                            stackTop = stack[stackLength - 1];
+                            stateId = stackTop.stateId;
+                            dfa = stackTop.dfa;
+                            // first = stackTop.beginTokens;
                             // first = top.dfa[1];
-                            statesOfState = states[state];
+                            statesOfState = dfa[stateId];
                         }
                     }
                     // done with this token
                     return false;
                 }
                 else if (isNonTerminal(t)) {
-                    var dfa = dfas[t];
-                    var itsfirst = dfa[1];
-                    if (itsfirst.hasOwnProperty(tokenSymbol)) {
-                        this.pushNonTerminal(t, dfa, newState, begin, end, line);
+                    var dfabt = dfas[t];
+                    var dfa_1 = dfabt[IDX_DFABT_DFA];
+                    var beginTokens = dfabt[IDX_DFABT_BEGIN_TOKENS];
+                    if (beginTokens.hasOwnProperty(tokenSymbol)) {
+                        this.pushNonTerminal(t, dfa_1, beginTokens, newState, begin, end, line);
                         continue OUTERWHILE;
                     }
                 }
             }
             // We've exhaused all the arcs for the for the state.
-            if (existsTransition(arcs, [T_ENDMARKER, top_1.state])) {
+            if (existsTransition(arcs, [T_ENDMARKER, stackTop.stateId])) {
                 // an accepting state, pop it and try something else
                 this.popNonTerminal();
                 if (stack.length === 0) {
@@ -888,7 +914,7 @@ var Parser = (function () {
                 }
             }
             else {
-                var found = grammarName(top_1.state);
+                var found = grammarName(stackTop.stateId);
                 // FIXME:
                 throw parseError("Unexpected " + found + " at " + JSON.stringify([begin[0], begin[1] + 1]), begin, end);
             }
@@ -949,7 +975,7 @@ var Parser = (function () {
         if (newnode && node.children) {
             node.children.push(newnode);
         }
-        stackTop.state = newState;
+        stackTop.stateId = newState;
     };
     /**
      * Push a non-terminal symbol onto the stack as a new node.
@@ -957,19 +983,19 @@ var Parser = (function () {
      * 2. Push a new element onto the stack corresponding to the symbol.
      * The new stack elements uses the newDfa and has state 0.
      */
-    Parser.prototype.pushNonTerminal = function (type, newDfa, newState, begin, end, line) {
+    Parser.prototype.pushNonTerminal = function (type, dfa, beginTokens, newState, begin, end, line) {
         // Based on how this function is called, there is really no need for this assertion.
         // Retain it for now while it is not the performance bottleneck.
         // assertNonTerminal(type);
         // Local variable for efficiency.
         var stack = this.stack;
         var stackTop = stack[stack.length - 1];
-        stackTop.state = newState;
+        stackTop.stateId = newState;
         var beginPos = begin ? new Position(begin[0], begin[1]) : null;
         var endPos = end ? new Position(end[0], end[1]) : null;
         var newnode = { type: type, value: null, range: new Range(beginPos, endPos), children: [] };
         // TODO: Is there a symbolic constant for the zero state?
-        stack.push({ dfa: newDfa, state: 0, node: newnode });
+        stack.push({ dfa: dfa, beginTokens: beginTokens, stateId: 0, node: newnode });
     };
     /**
      * Pop a nonterminal.
@@ -1106,21 +1132,13 @@ function makeParser(sourceKind) {
 })(exports.SourceKind || (exports.SourceKind = {}));
 function parse(sourceText, sourceKind) {
     if (sourceKind === void 0) { sourceKind = exports.SourceKind.File; }
-    var parseFunc = makeParser(sourceKind);
-    // sourceText.endsWith("\n");
-    // Why do we normalize the sourceText in this manner?
-    if (sourceText.substr(IDXLAST(sourceText), 1) !== "\n") {
-        sourceText += "\n";
-    }
-    // Splitting this ay will create a final line that is the zero-length string.
-    var lines = sourceText.split("\n");
+    var parser = makeParser(sourceKind);
+    var lines = splitSourceTextIntoLines(sourceText);
     // FIXME: Mixing the types this way is awkward for the consumer.
     var ret = false;
-    var N = lines.length;
-    for (var i = 0; i < N; ++i) {
-        // FIXME: Lots of string creation going on here. Why?
-        // We're adding back newline characters for all but the last line.
-        ret = parseFunc(lines[i] + ((i === IDXLAST(lines)) ? "" : "\n"));
+    for (var _i = 0, lines_1 = lines; _i < lines_1.length; _i++) {
+        var line = lines_1[_i];
+        ret = parser(line);
     }
     return ret;
 }

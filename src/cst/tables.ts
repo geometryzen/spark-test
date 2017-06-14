@@ -19,14 +19,19 @@ export type Arc = [number, number];
 /**
  *
  */
-export const DFA_STATES = 0;
-export const DFA_SECOND = 1;
+export const IDX_DFABT_DFA = 0;
+export const IDX_DFABT_BEGIN_TOKENS = 1;
 export type State = Arc[];
 export type Dfa = State[];
-export type DfaFirstPair = [Dfa, { [value: number]: number }];
+export type BeginTokens = { [value: number]: number };
+export type DfaAndBeginTokens = [Dfa, BeginTokens];
+
+export const IDX_LABEL_TOKEN_OR_SYMBOL = 0;
+export const IDX_LABEL_NAME = 1;
+export type Label = [number, string | null];
 
 /**
- * Describes the shape of the ParseTables objects (which needs to be renamed BTW).
+ * Describes the shape of the ParseTables objects.
  */
 export interface Grammar {
     /**
@@ -40,7 +45,7 @@ export interface Grammar {
      * begin this grammar rule (represented by a dict
      * whose values are always 1).
      */
-    dfas: { [symbolId: number]: DfaFirstPair };
+    dfas: { [symbolId: number]: DfaAndBeginTokens };
     /**
      * The first index is the symbol for a transition (a number).
      * The second index is the haman-readable decode of the symbol, if it exists, otherwise `null`.
@@ -55,13 +60,14 @@ export interface Grammar {
      * are used to mark state transitions (arcs) in the
      * DFAs.
      */
-    labels: [number, string | null][];
+    labels: Label[];
     /**
      * A mapping from a keyword to the symbol that has been assigned to it.
      */
     keywords: { [keyword: string]: number };
     /**
      * A mapping from a token to a symbol.
+     * A dict mapping token numbers to arc labels
      */
     tokens: { [token: number]: number };
     /**
@@ -93,40 +99,15 @@ export const ParseTables: Grammar = {
     number2symbol:
     { 256: 'Start' },
     dfas:
-    {
-        256: [
-            [
-                [
-                    [1, 1]
-                ],
-                [
-                    [2, 2]
-                ],
-                [
-                    [0, 2]
-                ]
-            ], { 1: 1 }]
-    },
+    { 256: [[[[1, 1], [2, 1]], [[3, 1], [4, 2]], [[0, 2]]], { 1: 1, 2: 1 }] },
     states:
-    [
-        [
-            [
-                [1, 1]
-            ],
-            [
-                [2, 2]
-            ],
-            [
-                [0, 2]
-            ]
-        ]
-    ],
+    [[[[1, 1], [2, 1]], [[3, 1], [4, 2]], [[0, 2]]]],
     labels:
-    [[0, 'EMPTY'], [2, null], [0, null]],
+    [[0, 'EMPTY'], [3, null], [2, null], [4, null], [0, null]],
     keywords:
     {},
     tokens:
-    { 0: 2, 2: 1 },
+    { 0: 4, 2: 2, 3: 1, 4: 3 },
     start: 256
 };
 

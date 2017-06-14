@@ -181,7 +181,11 @@ export class Tokenizer {
     private needcont: boolean;
     private contline: string | undefined;
     private readonly indents: number[];
-    private endprog: RegExp;
+    /**
+     * Matches any character zero or more times.
+     * May change...
+     */
+    private endprog: RegExp = /.*/;
     private readonly strstart: LineColumn = [-1, -1];
     /**
      * Probably used for REPL support.
@@ -199,7 +203,6 @@ export class Tokenizer {
         this.needcont = false;
         this.contline = undefined;
         this.indents = [0];
-        this.endprog = /.*/;
         this.interactive = interactive;
         this.doneFunc = function doneOrFailed(): DoneOrFailed {
             const begin = this.begin;

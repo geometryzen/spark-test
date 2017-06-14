@@ -6,11 +6,12 @@ import { Tokens } from './Tokens';
 import { tokenNames } from './tokenNames';
 
 // Helper function to compute the terminals of a node and convert the type(s) to human-readable strings.
-
+/*
 function DECODE(n: PyNode) {
     return TERMS(n).map(function (term) {
+        const tokenName = tokenNames[term.type];
         return {
-            type: tokenNames[term.type],
+            type: tokenName ? tokenName : `Missing decode for token type ${term.type}`,
             value: term.value,
             range: term.range,
             children: term.children,
@@ -18,7 +19,7 @@ function DECODE(n: PyNode) {
         };
     });
 }
-
+*/
 /**
  * Convenience function for checking a terminal node (token).
  * @param node The node to be checked.
@@ -44,17 +45,19 @@ describe('parse', function () {
             "123"
         ].join('\n');
         const cst = parse(sourceText) as PyNode;
-        console.log(JSON.stringify(DECODE(cst), null, 2));
+        // console.log(JSON.stringify(DECODE(cst), null, 2));
         const ns = TERMS(cst);
 
         it("should have correct number of terminals", function () {
             expect(Array.isArray(ns)).toBeTruthy();
-            expect(ns.length).toBe(13);
+            expect(ns.length).toBe(3);
         });
 
-        xit("should have the correct terminals", function () {
+        it("should have the correct terminals", function () {
             let i = 0;
-            expectTerm(ns[i++], Tokens.T_ENDMARKER, '', [3, 0], [3, 0]);
+            expectTerm(ns[i++], Tokens.T_NUMBER, '123', [1, 0], [1, 3]);
+            expectTerm(ns[i++], Tokens.T_NEWLINE, '\n', [1, 3], [1, 4]);
+            expectTerm(ns[i++], Tokens.T_ENDMARKER, '', [2, 0], [2, 0]);
         });
     });
 });

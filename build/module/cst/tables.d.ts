@@ -14,15 +14,19 @@ export declare type Arc = [number, number];
 /**
  *
  */
-export declare const DFA_STATES = 0;
-export declare const DFA_SECOND = 1;
+export declare const IDX_DFABT_DFA = 0;
+export declare const IDX_DFABT_BEGIN_TOKENS = 1;
 export declare type State = Arc[];
 export declare type Dfa = State[];
-export declare type DfaFirstPair = [Dfa, {
+export declare type BeginTokens = {
     [value: number]: number;
-}];
+};
+export declare type DfaAndBeginTokens = [Dfa, BeginTokens];
+export declare const IDX_LABEL_TOKEN_OR_SYMBOL = 0;
+export declare const IDX_LABEL_NAME = 1;
+export declare type Label = [number, string | null];
 /**
- * Describes the shape of the ParseTables objects (which needs to be renamed BTW).
+ * Describes the shape of the ParseTables objects.
  */
 export interface Grammar {
     /**
@@ -37,7 +41,7 @@ export interface Grammar {
      * whose values are always 1).
      */
     dfas: {
-        [symbolId: number]: DfaFirstPair;
+        [symbolId: number]: DfaAndBeginTokens;
     };
     /**
      * The first index is the symbol for a transition (a number).
@@ -53,7 +57,7 @@ export interface Grammar {
      * are used to mark state transitions (arcs) in the
      * DFAs.
      */
-    labels: [number, string | null][];
+    labels: Label[];
     /**
      * A mapping from a keyword to the symbol that has been assigned to it.
      */
@@ -62,6 +66,7 @@ export interface Grammar {
     };
     /**
      * A mapping from a token to a symbol.
+     * A dict mapping token numbers to arc labels
      */
     tokens: {
         [token: number]: number;
