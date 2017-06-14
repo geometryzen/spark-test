@@ -12,15 +12,12 @@ export declare const ARC_SYMBOL_LABEL = 0;
 export declare const ARC_TO_STATE = 1;
 export declare type Arc = [number, number];
 /**
- * Forget about the array wrapper!
- * A Dfa is a two-part object consisting of:
- * 1. A list of arcs for each state
- * 2. A mapping?
- * Interestingly, the second part does not seem to be used here.
+ *
  */
 export declare const DFA_STATES = 0;
 export declare const DFA_SECOND = 1;
-export declare type Dfa = Arc[][];
+export declare type State = Arc[];
+export declare type Dfa = State[];
 export declare type DfaFirstPair = [Dfa, {
     [value: number]: number;
 }];

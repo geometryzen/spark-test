@@ -14,11 +14,7 @@ var OpMap = {};
 
 
 /**
- * Forget about the array wrapper!
- * A Dfa is a two-part object consisting of:
- * 1. A list of arcs for each state
- * 2. A mapping?
- * Interestingly, the second part does not seem to be used here.
+ *
  */
 
 

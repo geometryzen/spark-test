@@ -19,15 +19,12 @@ export const ARC_TO_STATE = 1;
 export type Arc = [number, number];
 
 /**
- * Forget about the array wrapper!
- * A Dfa is a two-part object consisting of:
- * 1. A list of arcs for each state
- * 2. A mapping?
- * Interestingly, the second part does not seem to be used here.
+ *
  */
 export const DFA_STATES = 0;
 export const DFA_SECOND = 1;
-export type Dfa = Arc[][];
+export type State = Arc[];
+export type Dfa = State[];
 export type DfaFirstPair = [Dfa, { [value: number]: number }];
 
 /**
@@ -67,6 +64,7 @@ export interface Grammar {
     keywords: { [keyword: string]: number };
     /**
      * A mapping from a token to a symbol.
+     * A dict mapping token numbers to arc labels
      */
     tokens: { [token: number]: number };
     /**

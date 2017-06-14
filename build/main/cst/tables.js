@@ -10,11 +10,7 @@ exports.OpMap = {};
 exports.ARC_SYMBOL_LABEL = 0;
 exports.ARC_TO_STATE = 1;
 /**
- * Forget about the array wrapper!
- * A Dfa is a two-part object consisting of:
- * 1. A list of arcs for each state
- * 2. A mapping?
- * Interestingly, the second part does not seem to be used here.
+ *
  */
 exports.DFA_STATES = 0;
 exports.DFA_SECOND = 1;
