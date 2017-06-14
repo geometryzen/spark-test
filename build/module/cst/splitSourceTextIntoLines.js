@@ -1,6 +1,6 @@
 import { IDXLAST } from '../common/tree';
 /**
- * Prepare the source text into lines to feed to the generateTokens method of the tokenizer.
+ * Prepare the source text into lines to feed to the `generateTokens` method of the tokenizer.
  */
 export function splitSourceTextIntoLines(sourceText) {
     var lines = [];

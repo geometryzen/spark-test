@@ -1,1 +1,3 @@
-Start: (NUMBER|STRING) NEWLINE* ENDMARKER
+Start: funcdef NEWLINE* ENDMARKER
+funcdef: 'def' NAME '(' ')' [functype] ':' NAME
+functype: '->' NAME

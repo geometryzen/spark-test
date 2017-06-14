@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var tree_1 = require("../common/tree");
 /**
- * Prepare the source text into lines to feed to the generateTokens method of the tokenizer.
+ * Prepare the source text into lines to feed to the `generateTokens` method of the tokenizer.
  */
 function splitSourceTextIntoLines(sourceText) {
     var lines = [];

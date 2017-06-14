@@ -1,3 +1,6 @@
+/**
+ * These must align with the values in token.py
+ */
 export var Tokens;
 (function (Tokens) {
     /**
@@ -13,11 +16,15 @@ export var Tokens;
     Tokens[Tokens["T_NEWLINE"] = 4] = "T_NEWLINE";
     Tokens[Tokens["T_INDENT"] = 5] = "T_INDENT";
     Tokens[Tokens["T_DEDENT"] = 6] = "T_DEDENT";
-    Tokens[Tokens["T_OP"] = 7] = "T_OP";
-    Tokens[Tokens["T_COMMENT"] = 8] = "T_COMMENT";
-    Tokens[Tokens["T_NL"] = 9] = "T_NL";
-    Tokens[Tokens["T_ERRORTOKEN"] = 10] = "T_ERRORTOKEN";
-    Tokens[Tokens["T_N_TOKENS"] = 11] = "T_N_TOKENS";
+    Tokens[Tokens["T_LPAR"] = 7] = "T_LPAR";
+    Tokens[Tokens["T_RPAR"] = 8] = "T_RPAR";
+    Tokens[Tokens["T_COLON"] = 11] = "T_COLON";
+    Tokens[Tokens["T_OP"] = 52] = "T_OP";
+    Tokens[Tokens["T_COMMENT"] = 53] = "T_COMMENT";
+    Tokens[Tokens["T_NL"] = 54] = "T_NL";
+    Tokens[Tokens["T_RARROW"] = 55] = "T_RARROW";
+    Tokens[Tokens["T_ERRORTOKEN"] = 58] = "T_ERRORTOKEN";
+    Tokens[Tokens["T_N_TOKENS"] = 59] = "T_N_TOKENS";
     /**
      * Used to determine the boundary between terminals and non-terminals.
      */

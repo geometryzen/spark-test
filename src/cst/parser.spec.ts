@@ -2,8 +2,8 @@ import { parse, PyNode } from './parser';
 // import { cstDump, SourceKind } from './parser';
 // import { IDXLAST } from '../common/tree';
 import { TERMS } from '../common/tree';
-import { Tokens } from './Tokens';
-import { tokenNames } from './tokenNames';
+// import { Tokens } from './Tokens';
+// import { tokenNames } from './tokenNames';
 
 // Helper function to compute the terminals of a node and convert the type(s) to human-readable strings.
 /*
@@ -28,6 +28,7 @@ function DECODE(n: PyNode) {
  * @param begin  The begin position [line, column].
  * @param end The end position [line,column].
  */
+/*
 function expectTerm(node: PyNode, type: number, value: string, begin: [number, number], end: [number, number]) {
     expect(tokenNames[node.type]).toBe(tokenNames[type]);
     expect(node.value).toBe(value);
@@ -37,27 +38,20 @@ function expectTerm(node: PyNode, type: number, value: string, begin: [number, n
     expect(node.range.end.column).toBe(end[1]);
     expect(node.children).toBeNull();
 }
-
+*/
 describe('parse', function () {
 
     describe('...', function () {
         const sourceText = [
-            "123"
+            "def foo() -> GG: xyz"
         ].join('\n');
         const cst = parse(sourceText) as PyNode;
-        // console.log(JSON.stringify(DECODE(cst), null, 2));
+        // console.lg(JSON.stringify(DECODE(cst), null, 2));
         const ns = TERMS(cst);
 
         it("should have correct number of terminals", function () {
             expect(Array.isArray(ns)).toBeTruthy();
-            expect(ns.length).toBe(3);
-        });
-
-        it("should have the correct terminals", function () {
-            let i = 0;
-            expectTerm(ns[i++], Tokens.T_NUMBER, '123', [1, 0], [1, 3]);
-            expectTerm(ns[i++], Tokens.T_NEWLINE, '\n', [1, 3], [1, 4]);
-            expectTerm(ns[i++], Tokens.T_ENDMARKER, '', [2, 0], [2, 0]);
+            expect(ns.length).toBe(10);
         });
     });
 });

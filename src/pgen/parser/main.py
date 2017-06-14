@@ -7,7 +7,10 @@ import { Tokens } from './Tokens';
  * Mapping from operator textual symbols to token symbolic constants.
  */
 export const OpMap: { [op: string]: Tokens } = {
-//    "(": Tokens.T_LPAR,
+    "(": Tokens.T_LPAR,
+    ")": Tokens.T_RPAR,
+    ":": Tokens.T_COLON,
+    "->": Tokens.T_RARROW
 };
 
 

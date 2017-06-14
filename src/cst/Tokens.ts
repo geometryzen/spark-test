@@ -1,3 +1,6 @@
+/**
+ * These must align with the values in token.py
+ */
 export enum Tokens {
     /**
      * Used for trying a new state.
@@ -12,11 +15,15 @@ export enum Tokens {
     T_NEWLINE = 4,
     T_INDENT = 5,
     T_DEDENT = 6,
-    T_OP = 7,
-    T_COMMENT = 8,
-    T_NL = 9,
-    T_ERRORTOKEN = 10,
-    T_N_TOKENS = 11,
+    T_LPAR = 7,
+    T_RPAR = 8,
+    T_COLON = 11,
+    T_OP = 52,
+    T_COMMENT = 53,
+    T_NL = 54,
+    T_RARROW = 55,
+    T_ERRORTOKEN = 58,
+    T_N_TOKENS = 59,
     /**
      * Used to determine the boundary between terminals and non-terminals.
      */

@@ -22,7 +22,7 @@ describe("Tokenizer", function () {
     };
     const tokenizer = new Tokenizer(false, callback);
     const sourceText = [
-        "123"
+        "def foo() -> GG: xyz"
     ].join('\n');
     const lines = splitSourceTextIntoLines(sourceText);
     for (const line of lines) {
@@ -36,9 +36,10 @@ describe("Tokenizer", function () {
         // return false;
     }
     it("...", function () {
-        expect(tokens.length).toBe(3);
-        expect(tokens[0].type).toBe(Tokens.T_NUMBER);
-        expect(tokens[1].type).toBe(Tokens.T_NEWLINE);
-        expect(tokens[2].type).toBe(Tokens.T_ENDMARKER);
+        expect(tokens.length).toBe(10);
+        // console.log(JSON.stringify(tokens, null, 2));
+        // expect(tokens[0].type).toBe(Tokens.T_NUMBER);
+        // expect(tokens[1].type).toBe(Tokens.T_NEWLINE);
+        // expect(tokens[2].type).toBe(Tokens.T_ENDMARKER);
     });
 });
